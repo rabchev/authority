@@ -1,2 +1,2 @@
-node-authority
-==============
+authority
+=========

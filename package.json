@@ -1,0 +1,15 @@
+{
+    "name"              : "authority",
+    "description"       : "Authorization layer and services.",
+    "version"           : "0.0.1",
+    "main"              : "./lib/authority",
+    "scripts"           : {
+        "start"             : "mocha"
+    },
+    "dependencies"      : {
+    },
+    "devDependencies"   : {
+        "mocha"             : "*",
+        "chai"              : "*"
+    }
+}
