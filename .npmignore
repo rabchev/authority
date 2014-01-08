@@ -1,10 +1,10 @@
 .git*
-docs/
-examples/
-support/
-test/
+cache
+examples
+support
+test
 testing.js
 .DS_Store
 coverage.html
 lib-cov
-samples/
+samples

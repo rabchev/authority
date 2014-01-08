@@ -1,15 +1,42 @@
 {
-    "name"              : "authority",
-    "description"       : "Authorization layer and services.",
-    "version"           : "0.0.1",
-    "main"              : "./lib/authority",
-    "scripts"           : {
-        "start"             : "mocha"
+    "name"                  : "authority",
+    "description"           : "Simple and efficient rules engine and authorization module.",
+    "version"               : "0.0.1",
+    "main"                  : "./lib/authority",
+    "author"                : "Boyan Rabchev <boyan@rabchev.com>",
+    "contributors"          : [
+        { "name": "Boyan Rabchev", "email": "boyan@rabchev.com" }
+    ],
+    "repository"            : {
+        "type"                      : "git",
+        "url"                       : "https://github.com/rabchev/authority.git"
     },
-    "dependencies"      : {
+    "bugs"                  : {
+        "email"                     : "boyan@rabchev.com",
+        "url"                       : "https://github.com/rabchev/authority/issues"
     },
-    "devDependencies"   : {
-        "mocha"             : "*",
-        "chai"              : "*"
+    "license"               : {
+        "type"                      : "MIT",
+        "url"                       : "http://github.com/rabchev/authority/blob/master/LICENSE"
+    },
+    "homepage"              : "http://rabchev.github.io/authority",
+    "scripts"               : {
+        "start"                     : "mocha"
+    },
+    "dependencies"          : {
+        "lodash"                    : "*",
+        "sift"                      : "*"
+    },
+    "devDependencies"       : {
+        "mocha"                     : "*",
+        "chai"                      : "*",
+        "grunt"                     : "*",
+        "grunt-release"             : "*",
+        "grunt-jsdoc"               : "*",
+        "grunt-shell"               : "*",
+        "grunt-node-inspector"      : "*",
+        "grunt-concurrent"          : "*",
+        "grunt-gh-pages"            : "*",
+        "grunt-simple-mocha"        : "*"
     }
 }
