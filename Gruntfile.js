@@ -22,15 +22,7 @@ module.exports = function (grunt) {
             src: ["**"]
         },
         nodeunit        : {
-            all             : ["*_test.js"],
-            base            : ["provider-base_test.js"],
-            fileSys         : ["file-system_test.js", "fs-spec_test.js"],
-            mongodb         : ["mongodb_test.js"],
-            everlive        : ["everlive_test.js"],
-            manager         : ["manager_test.js"],
-            entree          : ["entree_test.js"],
-            cache           : ["cache_test.js"],
-            logging         : ["logging_test.js"]
+            all             : ["*_test.js"]
         },
         shell           : {
             debug           : {
@@ -42,15 +34,7 @@ module.exports = function (grunt) {
         },
         concurrent      : {
             options         : { logConcurrentOutput: true },
-            debug_all       : ["node-inspector", "shell:debug:all"],
-            debug_base      : ["node-inspector", "shell:debug:base"],
-            debug_fileSys   : ["node-inspector", "shell:debug:fileSys"],
-            debug_mongodb   : ["node-inspector", "shell:debug:mongodb"],
-            debug_everlive  : ["node-inspector", "shell:debug:everlive"],
-            debug_manager   : ["node-inspector", "shell:debug:manager"],
-            debug_entree    : ["node-inspector", "shell:debug:entree"],
-            debug_cache     : ["node-inspector", "shell:debug:cache"],
-            debug_logging   : ["node-inspector", "shell:debug:logging"]
+            debug_all       : ["node-inspector", "shell:debug:all"]
         },
         "node-inspector": {
             "default"       : {}
@@ -64,6 +48,7 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks("grunt-contrib-nodeunit");
     grunt.loadNpmTasks("grunt-node-inspector");
     grunt.loadNpmTasks("grunt-gh-pages");
+    grunt.loadNpmTasks("grunt-simple-mocha");
 
     grunt.registerTask("test", function () {
         var arg = "all";
