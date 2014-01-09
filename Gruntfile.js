@@ -21,13 +21,24 @@ module.exports = function (grunt) {
             },
             src: ["**"]
         },
-        nodeunit        : {
-            all             : ["*_test.js"]
+        simplemocha        : {
+            options: {
+                timeout         : 3000,
+                ignoreLeaks     : false,
+                reporter        : "spec"
+            },
+            all             : {
+                src: ["./test/*_test.js"]
+            }
         },
         shell           : {
             debug           : {
                 options         : { stdout: true },
                 command         : function (target) {
+                    if (process.platform === "win32") {
+                        return "grunt-debug test:" + target;
+                    }
+
                     return "node --debug-brk $(which grunt) test:" + target;
                 }
             }
@@ -45,7 +56,6 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks("grunt-shell");
     grunt.loadNpmTasks("grunt-release");
     grunt.loadNpmTasks("grunt-concurrent");
-    grunt.loadNpmTasks("grunt-contrib-nodeunit");
     grunt.loadNpmTasks("grunt-node-inspector");
     grunt.loadNpmTasks("grunt-gh-pages");
     grunt.loadNpmTasks("grunt-simple-mocha");
@@ -55,8 +65,8 @@ module.exports = function (grunt) {
         if (this.args && this.args.length > 0) {
             arg = this.args[0];
         }
-        process.chdir("test");
-        grunt.task.run(["nodeunit:" + arg]);
+        //process.chdir("test");
+        grunt.task.run(["simplemocha:" + arg]);
     });
 
     grunt.registerTask("test-debug", function () {
@@ -64,7 +74,7 @@ module.exports = function (grunt) {
         if (this.args && this.args.length > 0) {
             arg = this.args[0];
         }
-        process.chdir("test");
+        //process.chdir("test");
         grunt.task.run(["concurrent:debug_" + arg]);
     });
 
