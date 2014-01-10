@@ -65,7 +65,7 @@ module.exports = function (grunt) {
         if (this.args && this.args.length > 0) {
             arg = this.args[0];
         }
-        //process.chdir("test");
+
         grunt.task.run(["simplemocha:" + arg]);
     });
 
@@ -74,7 +74,7 @@ module.exports = function (grunt) {
         if (this.args && this.args.length > 0) {
             arg = this.args[0];
         }
-        //process.chdir("test");
+
         grunt.task.run(["concurrent:debug_" + arg]);
     });
 

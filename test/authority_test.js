@@ -3,9 +3,15 @@
 /*global describe, it */
 
 "use strict";
-debugger;
-var expect          = require("chai").expect,
-    authority    = require("../lib/authority");
+
+//debugger;
+
+var chai            = require("chai"),
+    sinonChai       = require("sinon-chai"),
+    expect          = chai.expect,
+    authority       = require("../lib/authority");
+
+chai.use(sinonChai);
 
 describe("authority", function () {
     it("set store", function () {

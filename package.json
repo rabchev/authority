@@ -31,6 +31,7 @@
     "devDependencies"       : {
         "mocha"                     : "*",
         "chai"                      : "*",
+        "sinon-chai"                : "*",
         "grunt"                     : "*",
         "grunt-release"             : "*",
         "grunt-jsdoc"               : "*",
