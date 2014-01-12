@@ -15,7 +15,7 @@ chai.use(sinonChai);
 
 describe("authority", function () {
     it("set store", function () {
-        authority.set();
+        authority.init();
         expect(authority.opts).to.be.ok;
     });
 
