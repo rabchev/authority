@@ -89,7 +89,7 @@ exports.getSuit = function (store) {
             });
         });
 
-        it ("get all rule names", function (done) {
+        it("get all rule names", function (done) {
             store.getRuleNames(0, 0, null, function (err, rules) {
                 expect(err).to.not.be.ok;
                 expect(rules.length).to.equal(4);
@@ -99,7 +99,7 @@ exports.getSuit = function (store) {
             });
         });
 
-        it ("get first two rule names", function (done) {
+        it("get first two rule names", function (done) {
             store.getRuleNames(0, 2, null, function (err, rules) {
                 expect(err).to.not.be.ok;
                 expect(rules.length).to.equal(2);
@@ -109,7 +109,7 @@ exports.getSuit = function (store) {
             });
         });
 
-        it ("get last two rule names", function (done) {
+        it("get last two rule names", function (done) {
             store.getRuleNames(2, 2, null, function (err, rules) {
                 expect(err).to.not.be.ok;
                 expect(rules.length).to.equal(2);
@@ -120,7 +120,7 @@ exports.getSuit = function (store) {
             });
         });
 
-        it ("get filtered rule names", function (done) {
+        it("get filtered rule names", function (done) {
             store.getRuleNames(0, 0, "*_only", function (err, rules) {
                 expect(err).to.not.be.ok;
                 expect(rules.length).to.equal(3);
@@ -131,7 +131,7 @@ exports.getSuit = function (store) {
             });
         });
 
-        it ("get first two filtered rule names", function (done) {
+        it("get first two filtered rule names", function (done) {
             store.getRuleNames(0, 2, "*_only", function (err, rules) {
                 expect(err).to.not.be.ok;
                 expect(rules.length).to.equal(2);
