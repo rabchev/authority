@@ -5,6 +5,6 @@
 var authority = require("../lib/authority"),
     RedisStore = require("../stores/redis"),
     RedisClient = require("redis-client"),
-    manager = authority.createManager({}, new RedisStore(new RedisClient({})));
+    manager = authority.createManager(new RedisStore(new RedisClient({})), {});
 
 
