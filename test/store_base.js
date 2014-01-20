@@ -140,5 +140,54 @@ exports.getSuit = function (store) {
                 done();
             });
         });
+
+        it("set single ACL", function (done) {
+            store.setAcls({
+                name: "article:1001",
+                operation: {
+                    modify: {
+                        deny: {},
+                        allow: {
+                            contributers: true,
+                            maintainers: true,
+                            "users:bob": true
+                        }
+                    },
+                    view: {
+                        allow: { visitors: true }
+                    }
+                }
+            }, function (err) {
+                expect(err).to.not.be.ok;
+                done();
+            });
+        });
+
+        it("set multiple ACLs", function (done) {
+            store.setAcls([{
+                name: "blogs",
+                description: "ACL for Blogs section.",
+                operation: { add: { allow: { contributers: true } } }
+            }, {
+                name: "allow_managers_only",
+                description: "Only managers can pass.",
+                condition: { title: "Manager" }
+            }, {
+                name: "allow_specific_roles",
+                description: "Only members of Admins, Power Users and Contributers can pass.",
+                condition: { roles: { $in: ["Admins", "Power Users", "Contributers"] } }
+            }], function (err) {
+                expect(err).to.not.be.ok;
+                done();
+            });
+        });
+
+        it("get ACL", function (done) {
+            store.getAcl("article:1001", function (err, acl) {
+                expect(err).to.not.be.ok;
+                expect(acl.operation.view.allow.visitors).to.equal(true);
+                done();
+            });
+        });
     };
 };
