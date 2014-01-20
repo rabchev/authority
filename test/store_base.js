@@ -60,14 +60,14 @@ exports.getSuit = function (store) {
             });
         });
 
-        it("should return error on existing", function (done) {
+        it("should return error on existing rule", function (done) {
             store.setRules({
                 name: "allow_testuser_only",
                 description: "Replace rule.",
                 condition: {}
             }, function (err) {
                 expect(err).to.be.ok;
-                expect(err.message).to.equal(Strings.ERR_RULE_EXISTS);
+                expect(err.message).to.equal(Strings.ERR_ITEM_EXISTS);
                 done();
             });
         });
@@ -141,6 +141,32 @@ exports.getSuit = function (store) {
             });
         });
 
+        it("delete single rule", function (done) {
+            store.deleteRules("allow_testuser_only", function (err) {
+                expect(err).to.not.be.ok;
+                store.getRule("allow_testuser_only", function (err, rule) {
+                    expect(err).to.not.be.ok;
+                    expect(rule).to.not.be.ok;
+                    done();
+                });
+            });
+        });
+
+        it("delete multiple rules", function (done) {
+            store.deleteRules([
+                "allow_teenagers_only",
+                "allow_managers_only",
+                "allow_specific_roles"
+            ], function (err) {
+                expect(err).to.not.be.ok;
+                store.getRuleCount(function (err, count) {
+                    expect(err).to.not.be.ok;
+                    expect(count).to.equal(0);
+                    done();
+                });
+            });
+        });
+
         it("set single ACL", function (done) {
             store.setAcls({
                 name: "article:1001",
@@ -169,13 +195,13 @@ exports.getSuit = function (store) {
                 description: "ACL for Blogs section.",
                 operation: { add: { allow: { contributers: true } } }
             }, {
-                name: "allow_managers_only",
-                description: "Only managers can pass.",
-                condition: { title: "Manager" }
+                name: "admin",
+                description: "ACL for administrative area.",
+                operation: { "delete": { allow: { maintainers: true } } }
             }, {
-                name: "allow_specific_roles",
+                name: "allow_downloads",
                 description: "Only members of Admins, Power Users and Contributers can pass.",
-                condition: { roles: { $in: ["Admins", "Power Users", "Contributers"] } }
+                operation: { "delete": { allow: { maintainers: true } } }
             }], function (err) {
                 expect(err).to.not.be.ok;
                 done();
@@ -186,6 +212,73 @@ exports.getSuit = function (store) {
             store.getAcl("article:1001", function (err, acl) {
                 expect(err).to.not.be.ok;
                 expect(acl.operation.view.allow.visitors).to.equal(true);
+                done();
+            });
+        });
+
+        it("get ACL count", function (done) {
+            store.getAclCount(function (err, count) {
+                expect(err).to.not.be.ok;
+                expect(count).to.equal(4);
+                done();
+            });
+        });
+
+        it("should return error on existing ACL", function (done) {
+            store.setAcls({
+                name: "article:1001",
+                description: "Replace rule.",
+                operation: { add: { allow: { contributers: true } } }
+            }, function (err) {
+                expect(err).to.be.ok;
+                expect(err.message).to.equal(Strings.ERR_ITEM_EXISTS);
+                done();
+            });
+        });
+
+        it("replace ACL", function (done) {
+            store.setAcls({
+                name: "article:1001",
+                description: "Replaced ACL.",
+                operation: {
+                    modify: {
+                        deny: {},
+                        allow: {
+                            contributers: true,
+                            maintainers: true,
+                            "users:bob": true
+                        }
+                    },
+                    view: {
+                        allow: { visitors: true }
+                    }
+                }
+            }, true, function (err) {
+                expect(err).to.not.be.ok;
+                store.getAcl("article:1001", function (err, res) {
+                    expect(err).to.not.be.ok;
+                    expect(res.description).to.equal("Replaced ACL.");
+                    done();
+                });
+            });
+        });
+
+        it("get all ACL names", function (done) {
+            store.getAclNames(0, 0, null, function (err, names) {
+                expect(err).to.not.be.ok;
+                expect(names.length).to.equal(4);
+                expect(names[0].name).to.equal("article:1001");
+                expect(names[3].name).to.equal("allow_downloads");
+                done();
+            });
+        });
+
+        it("get first two ACL names", function (done) {
+            store.getAclNames(0, 2, null, function (err, names) {
+                expect(err).to.not.be.ok;
+                expect(names.length).to.equal(2);
+                expect(names[0].name).to.equal("article:1001");
+                expect(names[1].name).to.equal("blogs");
                 done();
             });
         });
