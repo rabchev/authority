@@ -4,7 +4,7 @@
 
 "use strict";
 
-//debugger;
+debugger;
 
 var chai            = require("chai"),
     expect          = chai.expect,
@@ -191,16 +191,16 @@ exports.getSuit = function (store) {
 
         it("set multiple ACLs", function (done) {
             store.setAcls([{
-                name: "blogs",
+                name: "allow_blogs",
                 description: "ACL for Blogs section.",
                 operation: { add: { allow: { contributers: true } } }
             }, {
-                name: "admin",
+                name: "allow_admin",
                 description: "ACL for administrative area.",
                 operation: { "delete": { allow: { maintainers: true } } }
             }, {
                 name: "allow_downloads",
-                description: "Only members of Admins, Power Users and Contributers can pass.",
+                description: "ACL for downloads section.",
                 operation: { "delete": { allow: { maintainers: true } } }
             }], function (err) {
                 expect(err).to.not.be.ok;
@@ -278,8 +278,66 @@ exports.getSuit = function (store) {
                 expect(err).to.not.be.ok;
                 expect(names.length).to.equal(2);
                 expect(names[0].name).to.equal("article:1001");
-                expect(names[1].name).to.equal("blogs");
+                expect(names[1].name).to.equal("allow_blogs");
                 done();
+            });
+        });
+
+        it("get last two ACL names", function (done) {
+            store.getAclNames(2, 2, null, function (err, acls) {
+                expect(err).to.not.be.ok;
+                expect(acls.length).to.equal(2);
+                expect(acls[0].name).to.equal("allow_admin");
+                expect(acls[1].name).to.equal("allow_downloads");
+                expect(acls[1].description).to.equal("ACL for downloads section.");
+                done();
+            });
+        });
+
+        it("get filtered ACL names", function (done) {
+            store.getAclNames(0, 0, "allow_*", function (err, acls) {
+                expect(err).to.not.be.ok;
+                expect(acls.length).to.equal(3);
+                expect(acls[0].name).to.equal("allow_blogs");
+                expect(acls[1].name).to.equal("allow_admin");
+                expect(acls[2].name).to.equal("allow_downloads");
+                done();
+            });
+        });
+
+        it("get first two filtered ACL names", function (done) {
+            store.getAclNames(0, 2, "allow_*", function (err, acls) {
+                expect(err).to.not.be.ok;
+                expect(acls.length).to.equal(2);
+                expect(acls[0].name).to.equal("allow_blogs");
+                expect(acls[1].name).to.equal("allow_admin");
+                done();
+            });
+        });
+
+        it("delete single ACL", function (done) {
+            store.deleteAcls("article:1001", function (err) {
+                expect(err).to.not.be.ok;
+                store.getAcl("article:1001", function (err, rule) {
+                    expect(err).to.not.be.ok;
+                    expect(rule).to.not.be.ok;
+                    done();
+                });
+            });
+        });
+
+        it("delete multiple ACL", function (done) {
+            store.deleteAcls([
+                "allow_admin",
+                "allow_downloads",
+                "allow_blogs"
+            ], function (err) {
+                expect(err).to.not.be.ok;
+                store.getAclCount(function (err, count) {
+                    expect(err).to.not.be.ok;
+                    expect(count).to.equal(0);
+                    done();
+                });
             });
         });
     };
