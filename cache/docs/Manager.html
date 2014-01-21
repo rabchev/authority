@@ -72,7 +72,7 @@
     
         
 <dt>
-    <h4 class="name" id="Manager"><span class="type-signature"></span>new Manager<span class="signature">(<span class="optional">ruleStores</span>, <span class="optional">opts</span>)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="Manager"><span class="type-signature"></span>new Manager<span class="signature">(<span class="optional">opts</span>)</span><span class="type-signature"></span></h4>
     
     
 </dt>
@@ -81,6 +81,15 @@
     
     <div class="description">
         <p>Constructor for Authority Manager.</p>
+<p>Options</p>
+<ul>
+<li><code>ruleStore</code> {object/function}<optional>, configuration object or an instance of rules store.</li>
+<li><code>ruleStores</code> {object[]/function[]}<optional>, an array of configuration objects or instances of rule stores.</li>
+<li><code>defaultStore</code> {string}<optional>, specifies the default rule store for the manager. This option is applicable only if the manager is set to work with multiple rule stores. If this option is omitted the first store in the collection is assumed.</li>
+<li><code>aclStore</code> {(object/function)}<optional>, configuration object or an instance of ACL (Access Control List) store.</li>
+</ul>
+<p>All options are optional. If no rule or ACL store is specified, the <a href="MemoryStore.html">MemoryStore</a> is used.</p>
+<p>The configuration of stores takes the following form:</p>
     </div>
     
 
@@ -115,44 +124,7 @@
 	
 
         <tr>
-            
-                <td class="name"><code>ruleStores</code></td>
-            
 
-            <td class="type">
-            
-                
-<span class="param-type">object</span>
-|
-
-<span class="param-type">Array.&lt;object></span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last"><p>An object or an array of objects capable of storing rules.
-If ommited, <a href="MemoryStore.html">MemoryStore</a> is used.</p></td>
-        </tr>
-
-	
-
-        <tr>
-            
                 <td class="name"><code>opts</code></td>
             
 
@@ -179,7 +151,7 @@ If ommited, <a href="MemoryStore.html">MemoryStore</a> is used.</p></td>
 
             
 
-            <td class="description last"><p>Additional options.</p></td>
+            <td class="description last"><p>Additional options described above.</p></td>
         </tr>
 
 	
@@ -211,7 +183,7 @@ If ommited, <a href="MemoryStore.html">MemoryStore</a> is used.</p></td>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="manager.js.html">manager.js</a>, <a href="manager.js.html#sunlight-1-line-59">line 59</a>
+        <a href="manager.js.html">manager.js</a>, <a href="manager.js.html#sunlight-1-line-95">line 95</a>
     </li></ul></dd>
     
 
@@ -234,6 +206,21 @@ If ommited, <a href="MemoryStore.html">MemoryStore</a> is used.</p></td>
     
     
     
+        <h5>Example</h5>
+
+    <pre class="sunlight-highlight-javascript"> {
+     ruleStores: [
+         // Use memory store with default options. If the store property is string it is resolved with require and options property is passed as an argument.
+         { store: "memory", options: {} },
+         // Use Redis store. Options are store specific.
+         { store: "redis", options: { host: "redis.mydomain.com" } }
+     ],
+     defaultStore: "redis",
+     aclStore: { store: "redis", options: { host: "redis.mydomain.com" } }
+ }</pre>
+
+
+
 </dd>
 
     
@@ -398,7 +385,7 @@ The second parameter will contain <code>true</code> or <code>false</code> indica
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="manager.js.html">manager.js</a>, <a href="manager.js.html#sunlight-1-line-138">line 138</a>
+        <a href="manager.js.html">manager.js</a>, <a href="manager.js.html#sunlight-1-line-182">line 182</a>
     </li></ul></dd>
     
 
@@ -560,7 +547,7 @@ The second parameter will contain the requested rule or null if not found.</p></
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="manager.js.html">manager.js</a>, <a href="manager.js.html#sunlight-1-line-112">line 112</a>
+        <a href="manager.js.html">manager.js</a>, <a href="manager.js.html#sunlight-1-line-156">line 156</a>
     </li></ul></dd>
     
 
@@ -781,7 +768,7 @@ If the callback is omitted and the method is unsuccessful an error will be throw
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="manager.js.html">manager.js</a>, <a href="manager.js.html#sunlight-1-line-99">line 99</a>
+        <a href="manager.js.html">manager.js</a>, <a href="manager.js.html#sunlight-1-line-143">line 143</a>
     </li></ul></dd>
     
 
@@ -851,7 +838,7 @@ If the callback is omitted and the method is unsuccessful an error will be throw
 					
 		<span class="jsdoc-message">
 		Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.2</a>
-		on Sat Jan 18 2014 02:44:25 GMT+0200 (EET) using the <a href="https://github.com/terryweiss/docstrap">DocStrap template</a>.
+		on Tue Jan 21 2014 00:27:49 GMT+0200 (EET) using the <a href="https://github.com/terryweiss/docstrap">DocStrap template</a>.
 		</span>
 				</footer>
 			</div>
