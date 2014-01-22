@@ -315,6 +315,27 @@ exports.getSuit = function (store) {
             });
         });
 
+        it("get all subjects", function (done) {
+            store.subjectIndex(function (err, keys) {
+                expect(err).to.not.be.ok;
+                expect(keys).to.have.length(4);
+                expect(keys).to.include("users:bob");
+                expect(keys).to.include("contributers");
+                expect(keys).to.include("maintainers");
+                expect(keys).to.include("visitors");
+                done();
+            });
+        });
+
+        it("get maintainers permissions", function (done) {
+            store.subjectIndex("maintainers", function (err, keys) {
+                expect(err).to.not.be.ok;
+                expect(keys).to.have.length(1);
+                //expect(keys).to.include("allow");
+                done();
+            });
+        });
+
         it("delete single ACL", function (done) {
             store.deleteAcls("article:1001", function (err) {
                 expect(err).to.not.be.ok;
