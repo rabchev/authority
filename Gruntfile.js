@@ -1,4 +1,4 @@
-/*jslint plusplus: true, devel: true, nomen: true, node: true, indent: 4, maxerr: 50 */
+/*jslint plusplus: true, devel: true, nomen: true, node: true, es5: true, indent: 4, maxerr: 50 */
 
 "use strict";
 
@@ -29,6 +29,15 @@ module.exports = function (grunt) {
             },
             all             : {
                 src: ["./test/*_test.js"]
+            },
+            "memory-store"  : {
+                src: ["./test/memory_store_test.js"]
+            },
+            authority       : {
+                src: ["./test/authority_test.js"]
+            },
+            manager         : {
+                src: ["./test/manager_test.js"]
             }
         },
         shell           : {
@@ -44,8 +53,11 @@ module.exports = function (grunt) {
             }
         },
         concurrent      : {
-            options         : { logConcurrentOutput: true },
-            debug_all       : ["node-inspector", "shell:debug:all"]
+            options             : { logConcurrentOutput: true },
+            debug_all           : ["node-inspector", "shell:debug:all"],
+            debug_manager       : ["node-inspector", "shell:debug:manager"],
+            debug_memory_store  : ["node-inspector", "shell:debug:memory-store"],
+            debug_authority     : ["node-inspector", "shell:debug:authority"]
         },
         "node-inspector": {
             "default"       : {}
