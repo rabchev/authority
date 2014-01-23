@@ -331,7 +331,43 @@ exports.getSuit = function (store) {
             store.subjectIndex("maintainers", function (err, keys) {
                 expect(err).to.not.be.ok;
                 expect(keys).to.have.length(1);
-                //expect(keys).to.include("allow");
+                expect(keys).to.include("allow");
+                done();
+            });
+        });
+
+        it("get maintainers allowed operations", function (done) {
+            store.subjectIndex("maintainers.allow", function (err, keys) {
+                expect(err).to.not.be.ok;
+                expect(keys).to.have.length(2);
+                expect(keys).to.include("modify");
+                expect(keys).to.include("delete");
+                done();
+            });
+        });
+
+        it("get maintainers allowed delete resources", function (done) {
+            store.subjectIndex(["maintainers", "allow", "delete"], function (err, keys) {
+                expect(err).to.not.be.ok;
+                expect(keys).to.have.length(2);
+                expect(keys).to.include("allow_admin");
+                expect(keys).to.include("allow_downloads");
+                done();
+            });
+        });
+
+        it("get maintainers allowed modify resource", function (done) {
+            store.subjectIndex("maintainers.allow.modify.article:1001", function (err, val) {
+                expect(err).to.not.be.ok;
+                expect(val).to.be.true;
+                done();
+            });
+        });
+
+        it("invalid pattern", function (done) {
+            store.subjectIndex("maintainers.allow.modify.article:1001.foo", function (err, val) {
+                expect(err).to.not.be.ok;
+                expect(val).to.not.be.ok;
                 done();
             });
         });
@@ -347,6 +383,31 @@ exports.getSuit = function (store) {
             });
         });
 
+        it("get deleted index entry", function (done) {
+            store.subjectIndex("maintainers.allow.modify.article:1001", function (err, val) {
+                expect(err).to.not.be.ok;
+                expect(val).to.not.be.ok;
+                done();
+            });
+        });
+
+        it("check empty operation", function (done) {
+            store.subjectIndex("maintainers.allow", function (err, keys) {
+                expect(err).to.not.be.ok;
+                expect(keys).to.have.length(1);
+                expect(keys).to.include("delete");
+                done();
+            });
+        });
+
+        it("check unaffected entry", function (done) {
+            store.subjectIndex("contributers.allow.add.allow_blogs", function (err, val) {
+                expect(err).to.not.be.ok;
+                expect(val).to.be.true;
+                done();
+            });
+        });
+
         it("delete multiple ACL", function (done) {
             store.deleteAcls([
                 "allow_admin",
@@ -359,6 +420,14 @@ exports.getSuit = function (store) {
                     expect(count).to.equal(0);
                     done();
                 });
+            });
+        });
+
+        it("index should be empty", function (done) {
+            store.subjectIndex(function (err, keys) {
+                expect(err).to.not.be.ok;
+                expect(keys).to.have.length(0);
+                done();
             });
         });
     };

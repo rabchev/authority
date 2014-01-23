@@ -192,4 +192,23 @@ describe("manager", function () {
             done();
         });
     });
+
+    it("exec stored rule", function (done) {
+        var rule1 = {
+            name: "first_rule",
+            description: "The first rule of something.",
+            condition: {
+                age: { $gt: 20, $lt: 30}
+            }
+        };
+
+        manager.setRules(rule1, function (err) {
+            expect(err).to.be.undefined;
+            manager.execute("first_rule", users[1], function (err, res) {
+                expect(err).to.be.null;
+                expect(res).to.be.true;
+                done();
+            });
+        });
+    });
 });

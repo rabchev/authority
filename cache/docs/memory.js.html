@@ -57,13 +57,95 @@
     
     <section>
         <article>
-            <pre class="sunlight-highlight-javascript linenums">/*jslint plusplus: true, devel: true, nomen: true, node: true, indent: 4, maxerr: 50 */
+            <pre class="sunlight-highlight-javascript linenums">/*jslint plusplus: true, devel: true, nomen: true, node: true, es5: true, indent: 4, maxerr: 50 */
 
 "use strict";
 
 var Strings     = require("../strings"),
     util        = require("../util"),
     async       = require("async");
+
+function reversIndexAdd(man, acl) {
+
+    function setPermision(perm, permKey, opKey) {
+        var roles;
+        if (perm) {
+            roles = Object.keys(perm);
+            roles.forEach(function (role) {
+                var orl, rlPerm, opr;
+                if (perm[role]) {
+                    orl = man.subjects[role];
+                    if (!orl) {
+                        man.subjects[role] = orl = {};
+                    }
+                    rlPerm = orl[permKey];
+                    if (!rlPerm) {
+                        orl[permKey] = rlPerm = {};
+                    }
+                    opr = rlPerm[opKey];
+                    if (!opr) {
+                        rlPerm[opKey] = opr = {};
+                    }
+                    opr[acl.name] = true;
+                }
+            });
+        }
+    }
+
+    var ops;
+    if (acl.operation) {
+        ops = Object.keys(acl.operation);
+        ops.forEach(function (opKey) {
+            var op = acl.operation[opKey];
+            setPermision(op.deny, "deny", opKey);
+            setPermision(op.allow, "allow", opKey);
+        });
+    }
+}
+
+function reversIndexRem(man, acl) {
+
+    function remPermision(perm, permKey, opKey) {
+        var roles;
+        if (perm) {
+            roles = Object.keys(perm);
+            roles.forEach(function (role) {
+                var orl, rlPerm, opr;
+                if (perm[role]) {
+                    orl = man.subjects[role];
+                    if (orl) {
+                        rlPerm = orl[permKey];
+                        if (rlPerm) {
+                            opr = rlPerm[opKey];
+                            if (opr) {
+                                delete opr[acl.name];
+                                if (!Object.keys(opr).length) {
+                                    delete rlPerm[opKey];
+                                }
+                            }
+                            if (!Object.keys(rlPerm).length) {
+                                delete orl[permKey];
+                            }
+                        }
+                        if (!Object.keys(orl).length) {
+                            delete man.subjects[role];
+                        }
+                    }
+                }
+            });
+        }
+    }
+
+    var ops;
+    if (acl.operation) {
+        ops = Object.keys(acl.operation);
+        ops.forEach(function (opKey) {
+            var op = acl.operation[opKey];
+            remPermision(op.deny, "deny", opKey);
+            remPermision(op.allow, "allow", opKey);
+        });
+    }
+}
 
 function setItems(type, man, items, override, done) {
     if (typeof override === "function") {
@@ -84,7 +166,17 @@ function setItems(type, man, items, override, done) {
             return cb(new Error(Strings.ERR_ITEM_EXISTS));
         }
 
-        man[type][item.name] = item;
+        if (type === "acls") {
+            var old = man.acls[item.name];
+            if (old) {
+                reversIndexRem(man, old);
+            }
+            man.acls[item.name] = item;
+            reversIndexAdd(man, item);
+        } else {
+            man[type][item.name] = item;
+        }
+
         cb();
     }
 
@@ -107,6 +199,10 @@ function delItems(type, man, names, done) {
     }
 
     function remItem(name, cb) {
+        if (type === "acls") {
+            var acl = man.acls[name];
+            reversIndexRem(man, acl);
+        }
         delete man[type][name];
         cb();
     }
@@ -197,6 +293,11 @@ function MemoryStore(opts) {
      * The object that holds the references to all stored ACLs (Access Control Lists). NOTE: this member is not part of the Authority API and it is specific to this store only.
      */
     this.acls = {};
+
+    /**
+     * ACL reverse index. NOTE: this member is not part of the Authority API and it is specific to this store only.
+     */
+    this.subjects = {};
 }
 
 /**
@@ -252,6 +353,7 @@ MemoryStore.prototype.deleteRules = function (names, done) {
  * @param {string} match - Wildcard expression to match names. `null` denotes any name. Example: `allow_*`
  * @param {function} done - The callback that handles the result.
  * The first parameter will always be null for this store while the second parameter will contain an array of matched objects `{ name: "string", description: "string" }`.
+ * @return {null}
  */
 MemoryStore.prototype.getRuleNames = function (start, count, match, done) {
     getItemsNames("rules", this, start, count, match, done);
@@ -262,6 +364,7 @@ MemoryStore.prototype.getRuleNames = function (start, count, match, done) {
  *
  * @param {function} done - The callback that handles the result.
  * The first parameter will always be null for this store while the second parameter will contain a number representing the total count of rules.
+ * @return {null}
  */
 MemoryStore.prototype.getRuleCount = function (done) {
     done(null, Object.keys(this.rules).length);
@@ -269,6 +372,45 @@ MemoryStore.prototype.getRuleCount = function (done) {
 
 /**
  * Adds one or more ACL (Access Control List) to the store.
+ *
+ * An ACL entry has the following structure:
+ *
+ * @example
+ *  {
+ *      // Represents a primary key for the ACL and it is the field that binds the ACL to a resource.
+ *      name: "unique resource identifier",
+ *      description: "optional ACL description",
+ *      // Represents a collection of posible operations such as CRUD.
+ *      operation: {
+ *          // operation
+ *          view: {
+ *              // permission
+ *              allow: {
+ *                  // subject (role, user, agent etc.)
+ *                  everyone: true
+ *              },
+ *              deny: {}
+ *          },
+ *          modify: {
+ *              allow: {
+ *                  contributers: true,
+ *                  maintainers: true
+ *              },
+ *              deny: {
+ *                  anonymous: true
+ *              }
+ *          },
+ *          "delete": {
+ *              allow: {
+ *                  contributers: true,
+ *                  maintainers: true
+ *              },
+ *              deny: {
+ *                  anonymous: true
+ *              }
+ *          }
+ *      }
+ *  }
  *
  * @param {(object|object[])} acls - The ACL or an array of ACLs to be added to the store.
  *
@@ -320,6 +462,7 @@ MemoryStore.prototype.deleteAcls = function (names, done) {
  * @param {string} match - Wildcard expression to match names. `null` denotes any name. Example: `allow_*`
  * @param {function} done - The callback that handles the result.
  * The first parameter will always be null for this store while the second parameter will contain an array of matched objects `{ name: "string", description: "string" }`.
+ * @return {null}
  */
 MemoryStore.prototype.getAclNames = function (start, count, match, done) {
     getItemsNames("acls", this, start, count, match, done);
@@ -330,9 +473,75 @@ MemoryStore.prototype.getAclNames = function (start, count, match, done) {
  *
  * @param {function} done - The callback that handles the result.
  * The first parameter will always be null for this store while the second parameter will contain a number representing the total count of ACLs.
+ * @return {null}
  */
 MemoryStore.prototype.getAclCount = function (done) {
     done(null, Object.keys(this.acls).length);
+};
+
+/**
+ * This method is used to quickly find or browse through all effective permissions for a given subject.
+ *
+ * The index represents four levels deep nested collections in the following form:
+ * [subject].[permission].[operation].[resource]
+ *
+ * @example
+ *  var authority = require("authority"),
+ *      store = authority.stores.acl;
+ *
+ *  store.subjectIndex(function(err, res) {
+ *      // res -> ["contributers", "maintainers", "everyone", "anonymous"]
+ *  });
+ *
+ *  store.subjectIndex("maintainers", function(err, res) {
+ *      // res -> ["allow", "deny"]
+ *  });
+ *
+ *  store.subjectIndex("maintainers.allow", function(err, res) {
+ *      // res -> ["modify", "delete", "change_permissions", "approve_content"]
+ *  });
+ *
+ *  store.subjectIndex("maintainers.allow.approve_content", function(err, res) {
+ *      // res -> ["wiki", "blogs", "pages"]
+ *  });
+ *
+ *  store.subjectIndex("maintainers.allow.approve_content.wiki", function(err, res) {
+ *      // res -> true
+ *  });
+ *
+ * @param {string=} pattern - The pattern to match. If omitted, all elements at the first level (subjects) will be returned.
+ * @param {function} done - The callback that handles the result.
+ * The first parameter will always be null for this store while the second parameter will contain an array of keys that are direct members of the matching element.
+ * @return {null}
+ */
+MemoryStore.prototype.subjectIndex = function (pattern, done) {
+    if (!done) {
+        done = pattern;
+        pattern = null;
+    }
+
+    var base = this.subjects,
+        i;
+
+    if (pattern) {
+        if (!Array.isArray(pattern)) {
+            pattern = pattern.split(".");
+        }
+
+        for (i = 0; i &lt; pattern.length; i++) {
+            if (base && base !== true) {
+                base = base[pattern[i]];
+            } else {
+                return done(null, null);
+            }
+        }
+    }
+
+    if (i !== 4) {
+        base = Object.keys(base);
+    }
+
+    done(null, base);
 };
 
 module.exports = MemoryStore;
@@ -357,7 +566,7 @@ module.exports = MemoryStore;
 					
 		<span class="jsdoc-message">
 		Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.2</a>
-		on Tue Jan 21 2014 00:27:49 GMT+0200 (EET) using the <a href="https://github.com/terryweiss/docstrap">DocStrap template</a>.
+		on Thu Jan 23 2014 01:06:13 GMT+0200 (EET) using the <a href="https://github.com/terryweiss/docstrap">DocStrap template</a>.
 		</span>
 				</footer>
 			</div>
